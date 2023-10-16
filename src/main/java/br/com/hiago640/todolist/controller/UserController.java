@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import br.com.hiago640.todolist.model.User;
 import br.com.hiago640.todolist.repository.UserRepository;
 
@@ -23,6 +24,10 @@ public class UserController {
 
 		if (userRepository.findByUsername(user.getUsername()) == null) {
 			System.out.println(user.getUsername());
+
+			String passwordHashred = BCrypt.withDefaults().hashToString(12, user.getPassword().toCharArray());
+			user.setPassword(passwordHashred);
+
 			User save = userRepository.save(user);
 
 			return ResponseEntity.status(HttpStatus.CREATED).body(save);
