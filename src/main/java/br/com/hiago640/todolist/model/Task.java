@@ -29,6 +29,8 @@ public class Task {
 	private LocalDateTime endAt;
 	private int priority;
 
+	private UUID idUser;
+
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 

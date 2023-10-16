@@ -27,38 +27,49 @@ public class TaskAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		// pegar autenticacao
-
-		String authorization = request.getHeader("Authorization");
-		System.out.println("Authorization: " + authorization);
-
-		// separar o basic do header
-		String authEncoded = authorization.substring("Basic".length()).trim();
-
-		byte[] authDecoded = Base64.getDecoder().decode(authEncoded);
-
-		System.out.println("authDecoded" + authDecoded);
-
-		String[] credentials = String.valueOf(authDecoded).split(":");
-
-		String username = credentials[0];
-		String password = credentials[1];
-
-		User user = userRepository.findByUsername(username);
-
-		if (user == null) {
-			response.sendError(HttpStatus.UNAUTHORIZED.value(), "User sem autorização");
+		String servletPath = request.getServletPath();
+		if (!servletPath.startsWith("/tasks")) {
+			filterChain.doFilter(request, response);
 		} else {
-			Result passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
 
-			if (passwordVerify.verified) {
-				filterChain.doFilter(request, response);
-			} else {
+			// pegar autenticacao
+
+			String authorization = request.getHeader("Authorization");
+			System.out.println("Authorization: " + authorization);
+
+			// separar o basic do header
+			String authEncoded = authorization.substring("Basic".length()).trim();
+
+			byte[] authDecoded = Base64.getDecoder().decode(authEncoded);
+
+			System.out.println("authDecoded" + authDecoded);
+
+			String[] credentials = String.valueOf(authDecoded).split(":");
+
+			//pega username e senha
+			String username = credentials[0];
+			String password = credentials[1];
+
+			User user = userRepository.findByUsername(username);
+			//procura usuario no sistema pelo username
+			if (user == null) {
 				response.sendError(HttpStatus.UNAUTHORIZED.value(), "User sem autorização");
+			} else {
+				Result passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+
+				//se senha for igual, segue, se não, dispara erro
+				if (passwordVerify.verified) {
+					//setta o idUser no request
+					request.setAttribute("idUser", user.getId());
+
+					filterChain.doFilter(request, response);
+				} else {
+					response.sendError(HttpStatus.UNAUTHORIZED.value(), "User sem autorização");
+				}
+
 			}
 
 		}
-
 	}
 
 }
