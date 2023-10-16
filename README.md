@@ -20,9 +20,9 @@ Para executar esta aplicação em sua própria máquina, siga estas etapas:
 
 2. Clone este repositório:
 
-   ```bash
-   git clone [https://github.com/his/todolist.git](https://github.com/hiago640/todolist.git)
-  ```
+      ```bash
+        git clone https://github.com/hiago640/todolist.git
+     ```
 
 ## Configuração e Uso
 
@@ -32,9 +32,9 @@ Para executar esta aplicação em sua própria máquina, siga estas etapas:
 
 2. Navegue até o diretório raiz do projeto:
 
-   ```bash
-   cd todolist
-  ```
+     ```bash
+        cd todolist
+      ```
 
 ## Contribuição
 
