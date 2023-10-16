@@ -27,4 +27,14 @@ public class User {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
+	public UUID getId(){
+		return id;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + ", name=" + name + ", password=" + password
+				+ ", createdAt=" + createdAt + "]";
+	}
+
 }

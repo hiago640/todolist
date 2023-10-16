@@ -2,6 +2,7 @@ package br.com.hiago640.todolist.filter;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,28 +40,38 @@ public class TaskAuthFilter extends OncePerRequestFilter {
 
 			// separar o basic do header
 			String authEncoded = authorization.substring("Basic".length()).trim();
+			System.out.println(authEncoded);
 
 			byte[] authDecoded = Base64.getDecoder().decode(authEncoded);
+			System.out.println(authDecoded);
+
 
 			System.out.println("authDecoded" + authDecoded);
 
-			String[] credentials = String.valueOf(authDecoded).split(":");
-
+			String[] credentials = new String(authDecoded).split(":");
+			System.out.println("credentials" + credentials + " size: " + credentials.length );
 			//pega username e senha
 			String username = credentials[0];
 			String password = credentials[1];
 
 			User user = userRepository.findByUsername(username);
+
+			System.out.println(user);
 			//procura usuario no sistema pelo username
+
 			if (user == null) {
 				response.sendError(HttpStatus.UNAUTHORIZED.value(), "User sem autorização");
 			} else {
+
 				Result passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
 
 				//se senha for igual, segue, se não, dispara erro
 				if (passwordVerify.verified) {
+					UUID idUser = user.getId();
 					//setta o idUser no request
-					request.setAttribute("idUser", user.getId());
+
+					request.setAttribute("idUser", idUser);
+					System.out.println(request.getAttribute("idUser"));
 
 					filterChain.doFilter(request, response);
 				} else {

@@ -30,16 +30,23 @@ public class TaskController {
 
 	@PostMapping("/")
 	public ResponseEntity createTask(@RequestBody Task task, HttpServletRequest request) {
-		task.setIdUser(UUID.fromString(request.getParameter("idUser")));
+
+		UUID idUser = (UUID) request.getAttribute("idUser");
+		task.setIdUser(idUser);
 
 		LocalDateTime currentDate = LocalDateTime.now();
+
+		System.out.println(currentDate);
+		System.out.println(task.getStartAt());
+		System.out.println(task.getEndAt());
+
 		if (currentDate.isAfter(task.getStartAt()) || currentDate.isAfter(task.getEndAt())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("A Data de Inicio / Data de Término deve ser maior que a Data Atual.");
 		}
 
 		if (task.getStartAt().isAfter(task.getEndAt())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("A Data de Inicio deve ser menor que a Data de Término.");
 		}
 
@@ -47,7 +54,7 @@ public class TaskController {
 
 		System.out.println(save.getTitle());
 
-		return ResponseEntity.status(HttpStatus.OK.value()).body(task);
+		return ResponseEntity.status(HttpStatus.OK).body(task);
 	}
 
 	@GetMapping("/")
@@ -59,13 +66,25 @@ public class TaskController {
 	}
 
 	@PutMapping("/{id}")
-	public Task updateTask(@RequestBody Task task, @PathVariable UUID id, HttpServletRequest request) {
+	public ResponseEntity updateTask(@RequestBody Task task, @PathVariable UUID id, HttpServletRequest request) {
 
 		Task taskById = taskRepository.findById(id).orElse(null);
 
+		if (taskById == null)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Tarefa não encontrada");
+
+		UUID userID = (UUID) request.getAttribute("idUser");
+
+		if (userID.equals(taskById.getIdUser()))
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Usuário não tem permissão para alterar esta tarefa");
+
 		Utils.copyNonNullProperties(task, taskById);
 
-		return taskRepository.save(taskById);
+		Task taskUpdated = taskRepository.save(taskById);
+
+		return ResponseEntity.status(HttpStatus.OK).body(taskUpdated);
 	}
 
 }

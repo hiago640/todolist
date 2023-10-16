@@ -12,7 +12,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class Utils {
 
-	public static void copyNonNullProperties(Object source, Object destination){
+	private Utils() {
+
+	}
+
+	public static void copyNonNullProperties(Object source, Object destination) {
 		BeanUtils.copyProperties(source, destination, getNullPropertyNames(source));
 	}
 

@@ -19,19 +19,24 @@ public class Task {
 	@GeneratedValue(generator = "UUID")
 	private UUID id;
 
-	private User user;
-
 	private String description;
 
 	@Column(length = 50)
 	private String title;
 	private LocalDateTime startAt;
 	private LocalDateTime endAt;
-	private int priority;
+	private String priority;
 
 	private UUID idUser;
 
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
+	public void setTitle(String title) throws Exception {
+		
+		if(title.length() > 50)
+			throw new Exception("Title must be at least 50 characters");
+
+		this.title = title;
+	}
 }
